@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173b32">
+  <title>Lucky Number | Dice Roller</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #173b32;
+      --muted: #64776d;
+      --paper: #f5f3e9;
+      --panel: #fffdf6;
+      --green: #245b49;
+      --green-dark: #194536;
+      --lime: #d2e875;
+      --coral: #e7785c;
+      --line: #e7e5d8;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      padding: 48px 24px;
+      color: var(--ink);
+      background-color: var(--paper);
+      background-image: radial-gradient(#d9ddc9 0.8px, transparent 0.8px);
+      background-size: 18px 18px;
+    }
+
+    button, select { font: inherit; }
+
+    .app {
+      width: min(100%, 960px);
+      margin: 0 auto;
+    }
+
+    .topline {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 22px;
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1.7px;
+      text-transform: uppercase;
+    }
+
+    .topline-mark {
+      display: grid;
+      width: 25px;
+      height: 25px;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--lime);
+      font-size: 14px;
+      letter-spacing: 0;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 265px;
+      overflow: hidden;
+      border: 1px solid #e3e2d5;
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 22px 60px #304c3217, 0 3px 10px #304c320b;
+    }
+
+    .roller {
+      min-height: 570px;
+      padding: 48px clamp(24px, 6vw, 68px) 38px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--coral);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(36px, 6vw, 56px);
+      font-weight: 500;
+      line-height: 1.08;
+    }
+
+    .subtitle {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .dice-stage {
+      display: flex;
+      min-height: 245px;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(14px, 3vw, 27px);
+      padding: 24px 0;
+    }
+
+    .die {
+      display: grid;
+      width: clamp(76px, 12vw, 108px);
+      aspect-ratio: 1;
+      grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+      padding: 16%;
+      border: 1px solid #e5e1d2;
+      border-radius: 20px;
+      background: #fff;
+      box-shadow: 0 7px 0 #e9e5d8, 0 12px 22px #283b2610;
+    }
+
+    .pip {
+      width: 13px;
+      max-width: 100%;
+      aspect-ratio: 1;
+      align-self: center;
+      justify-self: center;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    .die.is-rolling { animation: tumble 560ms cubic-bezier(.25,.8,.35,1); }
+
+    @keyframes tumble {
+      0% { transform: rotate(0) translateY(0); }
+      35% { transform: rotate(14deg) translateY(-15px) scale(1.06); }
+      70% { transform: rotate(-9deg) translateY(3px) scale(.98); }
+      100% { transform: rotate(0) translateY(0); }
+    }
+
+    .scoreline {
+      display: flex;
+      min-height: 68px;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .score {
+      color: var(--ink);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .controls {
+      display: flex;
+      align-items: end;
+      justify-content: center;
+      gap: 12px;
+      padding-top: 14px;
+    }
+
+    .count-control {
+      display: grid;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+    }
+
+    select {
+      height: 48px;
+      min-width: 87px;
+      padding: 0 32px 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--ink);
+      background-color: #fff;
+      font-size: 14px;
+    }
+
+    .roll-button {
+      display: inline-flex;
+      height: 48px;
+      min-width: 158px;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 0 22px;
+      border: 0;
+      border-radius: 6px;
+      color: #fff;
+      background: var(--green);
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 800;
+      transition: background 150ms ease, transform 150ms ease;
+    }
+
+    .roll-button:hover { background: var(--green-dark); }
+    .roll-button:active { transform: translateY(1px); }
+    .roll-button:focus-visible, select:focus-visible, .clear-button:focus-visible {
+      outline: 3px solid var(--coral);
+      outline-offset: 3px;
+    }
+
+    .roll-icon { font-size: 19px; line-height: 1; }
+
+    .history {
+      padding: 38px 24px;
+      border-left: 1px solid var(--line);
+      background: #f8f8f0;
+    }
+
+    .history-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h2 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 21px;
+      font-weight: 500;
+    }
+
+    .clear-button {
+      padding: 5px 0 5px 8px;
+      border: 0;
+      color: var(--muted);
+      background: transparent;
+      cursor: pointer;
+      font-size: 11px;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .history-list {
+      display: grid;
+      gap: 0;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .history-item {
+      display: flex;
+      min-height: 57px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 1px solid var(--line);
+      font-size: 12px;
+    }
+
+    .history-roll { color: var(--muted); }
+    .history-total { font-weight: 800; }
+    .empty-history { padding-top: 20px; color: var(--muted); font-size: 13px; }
+    .status { min-height: 18px; margin: 12px 0 0; color: var(--muted); text-align: center; font-size: 11px; }
+
+    @media (max-width: 700px) {
+      body { padding: 28px 14px; }
+      .layout { grid-template-columns: 1fr; }
+      .roller { min-height: auto; padding: 34px 22px 24px; }
+      .dice-stage { min-height: 205px; }
+      .history { padding: 23px 22px 26px; border-top: 1px solid var(--line); border-left: 0; }
+      .history-item { min-height: 49px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <p class="topline"><span class="topline-mark" aria-hidden="true">⚄</span> The little luck club</p>
+    <div class="layout">
+      <section class="roller" aria-labelledby="title">
+        <p class="eyebrow">Your turn</p>
+        <h1 id="title">Roll the dice.</h1>
+        <p class="subtitle">A little chance can change everything.</p>
+
+        <div class="dice-stage" id="dice-stage" aria-live="polite" aria-label="Dice ready to roll"></div>
+        <div class="scoreline" aria-live="polite">
+          <span>Total</span>
+          <output class="score" id="total">7</output>
+        </div>
+
+        <div class="controls">
+          <label class="count-control" for="dice-count">
+            Dice
+            <select id="dice-count" aria-label="Number of dice">
+              <option value="1">1 die</option>
+              <option value="2" selected>2 dice</option>
+              <option value="3">3 dice</option>
+              <option value="4">4 dice</option>
+              <option value="5">5 dice</option>
+              <option value="6">6 dice</option>
+            </select>
+          </label>
+          <button class="roll-button" id="roll-button" type="button">
+            <span class="roll-icon" aria-hidden="true">⚄</span>
+            <span>Roll dice</span>
+          </button>
+        </div>
+        <p class="status" id="status" role="status">Ready when you are.</p>
+      </section>
+
+      <aside class="history" aria-labelledby="history-title">
+        <div class="history-heading">
+          <h2 id="history-title">Recent rolls</h2>
+          <button class="clear-button" id="clear-history" type="button">Clear</button>
+        </div>
+        <ol class="history-list" id="history-list"></ol>
+      </aside>
+    </div>
+  </main>
+
+  <script>
+    const stage = document.querySelector("#dice-stage");
+    const totalOutput = document.querySelector("#total");
+    const countSelect = document.querySelector("#dice-count");
+    const rollButton = document.querySelector("#roll-button");
+    const status = document.querySelector("#status");
+    const historyList = document.querySelector("#history-list");
+    const clearHistoryButton = document.querySelector("#clear-history");
+    const pipLayouts = {
+      1: [4],
+      2: [0, 8],
+      3: [0, 4, 8],
+      4: [0, 2, 6, 8],
+      5: [0, 2, 4, 6, 8],
+      6: [0, 2, 3, 5, 6, 8]
+    };
+    const history = [];
+    let rollNumber = 0;
+    let isRolling = false;
+
+    function randomDieValue() {
+      if (globalThis.crypto && typeof globalThis.crypto.getRandomValues === "function") {
+        const random = new Uint32Array(1);
+        const range = 2 ** 32;
+        const limit = range - (range % 6);
+        let value;
+        do {
+          globalThis.crypto.getRandomValues(random);
+          value = random[0];
+        } while (value >= limit);
+        return (value % 6) + 1;
+      }
+
+      return Math.floor(Math.random() * 6) + 1;
+    }
+
+    function makeDie(value, index) {
+      const die = document.createElement("div");
+      die.className = "die";
+      die.setAttribute("role", "img");
+      die.setAttribute("aria-label", `Die ${index + 1}: ${value}`);
+      for (const position of pipLayouts[value]) {
+        const pip = document.createElement("span");
+        pip.className = "pip";
+        pip.style.gridRow = String(Math.floor(position / 3) + 1);
+        pip.style.gridColumn = String((position % 3) + 1);
+        die.append(pip);
+      }
+      return die;
+    }
+
+    function renderDice(values) {
+      stage.replaceChildren(...values.map(makeDie));
+      stage.setAttribute("aria-label", `${values.length} ${values.length === 1 ? "die" : "dice"}: ${values.join(", ")}`);
+      totalOutput.value = String(values.reduce((sum, value) => sum + value, 0));
+      totalOutput.textContent = totalOutput.value;
+    }
+
+    function renderHistory() {
+      historyList.replaceChildren();
+      if (history.length === 0) {
+        const empty = document.createElement("li");
+        empty.className = "empty-history";
+        empty.textContent = "Your rolls will show up here.";
+        historyList.append(empty);
+        return;
+      }
+
+      for (const entry of history) {
+        const item = document.createElement("li");
+        item.className = "history-item";
+        const roll = document.createElement("span");
+        roll.className = "history-roll";
+        roll.textContent = `Roll ${entry.number} · ${entry.values.join(" + ")}`;
+        const total = document.createElement("span");
+        total.className = "history-total";
+        total.textContent = String(entry.total);
+        item.append(roll, total);
+        historyList.append(item);
+      }
+    }
+
+    function rollDice() {
+      if (isRolling) return;
+      isRolling = true;
+      rollButton.disabled = true;
+      status.textContent = "Rolling...";
+      const dice = [...stage.children];
+      for (const die of dice) {
+        die.classList.remove("is-rolling");
+        void die.offsetWidth;
+        die.classList.add("is-rolling");
+      }
+
+      const values = Array.from({ length: Number(countSelect.value) }, randomDieValue);
+      window.setTimeout(() => {
+        renderDice(values);
+        const total = values.reduce((sum, value) => sum + value, 0);
+        rollNumber += 1;
+        history.unshift({ number: rollNumber, values, total });
+        history.splice(5);
+        renderHistory();
+        status.textContent = `Rolled ${values.length === 1 ? "a die" : `${values.length} dice`}.`;
+        rollButton.disabled = false;
+        isRolling = false;
+      }, 560);
+    }
+
+    countSelect.addEventListener("change", () => {
+      const values = Array.from({ length: Number(countSelect.value) }, randomDieValue);
+      renderDice(values);
+    });
+    rollButton.addEventListener("click", rollDice);
+    clearHistoryButton.addEventListener("click", () => {
+      history.length = 0;
+      rollNumber = 0;
+      renderHistory();
+    });
+
+    renderDice([1, 6]);
+    renderHistory();
+  </script>
+</body>
+</html>
